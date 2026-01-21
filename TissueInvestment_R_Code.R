@@ -3,12 +3,13 @@ library(emmeans)
 library(lme4)
 library(dplyr) #formatting
 library(gt) #creating supplementary tables
+library(car) #Levene's Test
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 #import data in
-df1 <- read.csv("~/Data/TissueInvestmentData.csv") 
-df1$Morph <- gsub(" ", "", df1$Morph)
+df1 <- read.csv("~/Data/TissueInvestmentData.csv")
+df1$Male_Type <- gsub(" ", "", df1$Male_Type)
 df1$Species <- gsub(". ", "oecilia_", df1$Species)
 
 #brain residuals
@@ -35,30 +36,43 @@ nmdf <- df1[df1$Sex != "Male",]#no males
 #Male Gonad
 #raw gonad
 ##all males
-raw_g <- aov(nfdf$Gonad.Weight..mg.~nfdf$Species+nfdf$Species:nfdf$Morph) #ANOVA
+raw_g <- aov(nfdf$Gonad.Weight..mg.~nfdf$Species+nfdf$Species:nfdf$Male_Type) #ANOVA
 summary(raw_g)
-raw_g_comp <-pairs(emmeans(raw_g, "Morph", adjust = "tukey")) #pairwise comparisons
+raw_g_comp <-pairs(emmeans(raw_g, "Male_Type", adjust = "tukey")) #pairwise comparisons
 summary(raw_g_comp)
+
+shapiro.test(residuals(raw_g)) #normal distribution test
+leveneTest(Gonad.Weight..mg. ~ Morph, data = nfdf)# Run Levene's test using formula interface
 
 #residual gonad weight (males only)
 ##all males
-res_g <-aov(nfdf$ResGL~nfdf$Species+nfdf$Species:nfdf$Morph) #ANOVA
+res_g <-aov(nfdf$ResGL~nfdf$Species+nfdf$Species:nfdf$Male_Type) #ANOVA
 summary(res_g)
-res_g_comp <-pairs(emmeans(res_g, "Morph", adjust = "tukey")) #pairwise comparisons
+res_g_comp <-pairs(emmeans(res_g, "Male_Type", adjust = "tukey")) #pairwise comparisons
 summary(res_g_comp)
+
+shapiro.test(residuals(res_g)) #normal distribution test
+leveneTest(ResGL ~ Morph, data = nfdf)# Run Levene's test using formula interface
 
 #-------
 #Brain
 
 #raw brain weight (males and females)
-raw_br_all <- aov(df1$Brain.Weight..mg.~df1$Sex*df1$Species+df1$Species:df1$Morph) #ANOVA
+raw_br_all <- aov(df1$Brain.Weight..mg.~df1$Sex*df1$Species+df1$Species:df1$Male_Type) #ANOVA
 summary(raw_br_all)
 
+shapiro.test(residuals(raw_br_all)) #normal distribution test
+leveneTest(Brain.Weight..mg. ~ Morph, data = df1)# Run Levene's test using formula interface
+
+
 ##just males
-raw_br_m <- aov(nfdf$Brain.Weight..mg.~nfdf$Species+nfdf$Species:nfdf$Morph) #ANOVA
+raw_br_m <- aov(nfdf$Brain.Weight..mg.~nfdf$Species+nfdf$Species:nfdf$Male_Type) #ANOVA
 summary(raw_br_m)
-raw_br_m_comp <-pairs(emmeans(raw_br_m, "Morph", adjust = "tukey")) #pairwise comparisons
+raw_br_m_comp <-pairs(emmeans(raw_br_m, "Male_Type", adjust = "tukey")) #pairwise comparisons
 summary(raw_br_m_comp)
+
+shapiro.test(residuals(raw_br_m)) #normal distribution test
+leveneTest(Brain.Weight..mg. ~ Morph, data = nfdf)# Run Levene's test using formula interface
 
 ##just females
 raw_br_f <- aov(nmdf$Brain.Weight..mg.~nmdf$Species) #ANOVA
@@ -66,15 +80,24 @@ summary(raw_br_f)
 raw_br_f_comp <-pairs(emmeans(aov(nmdf$Brain.Weight..mg.~nmdf$Species), "Species", adjust = "tukey")) #pairwise comparisons
 summary(raw_br_f_comp)
 
+shapiro.test(residuals(raw_br_f)) #normal distribution test
+leveneTest(Brain.Weight..mg. ~ Morph, data = nmdf)# Run Levene's test using formula interface
 
 #residual brain weight (males and females)
-res_br_all <- aov(df1$ResBL~df1$Sex*df1$Species+df1$Species:df1$Morph) #ANOVA
+res_br_all <- aov(df1$ResBL~df1$Sex*df1$Species+df1$Species:df1$Male_Type) #ANOVA
 summary(res_br_all)
+
+shapiro.test(residuals(res_br_all)) #normal distribution test
+leveneTest(ResBL ~ Morph, data = df1)# Run Levene's test using formula interface
+
 ##just males
-res_br_m <- aov(nfdf$ResBL~nfdf$Species+nfdf$Species:nfdf$Morph) #ANOVA
+res_br_m <- aov(nfdf$ResBL~nfdf$Species+nfdf$Species:nfdf$Male_Type) #ANOVA
 summary(res_br_m)
-res_br_m_comp <- pairs(emmeans(res_br_m, "Morph", adjust = "tukey")) #pairwise comparisons
+res_br_m_comp <- pairs(emmeans(res_br_m, "Male_Type", adjust = "tukey")) #pairwise comparisons
 summary(res_br_m_comp)
+
+shapiro.test(residuals(res_br_m)) #normal distribution test
+leveneTest(ResBL ~ Morph, data = nfdf)# Run Levene's test using formula interface
 
 ##just females
 res_br_f <-aov(nmdf$ResBL~nmdf$Species) #ANOVA
@@ -82,24 +105,37 @@ summary(res_br_f)
 res_br_f_comp <-pairs(emmeans(aov(nmdf$ResBL~nmdf$Species), "Species", adjust = "tukey")) #pairwise comparisons
 summary(res_br_f_comp)
 
+shapiro.test(residuals(res_br_f)) #normal distribution test
+leveneTest(ResBL ~ Morph, data = nmdf)# Run Levene's test using formula interface
+
 #-------
 
 #Neuron/glia ratio
-ngr_all <- aov(df1$Neuron.Ratio~df1$Sex*df1$Species+df1$Species:df1$Morph) #ANOVA
+ngr_all <- aov(df1$Neuron.Ratio~df1$Sex*df1$Species+df1$Species:df1$Male_Type) #ANOVA
 summary(ngr_all)
+
+shapiro.test(residuals(ngr_all)) #normal distribution test
+leveneTest(Neuron.Ratio ~ Morph, data = df1)# Run Levene's test using formula interface
+
 ##just males
-ngr_m <-aov(nfdf$Neuron.Ratio~nfdf$Species+nfdf$Species:nfdf$Morph) #ANOVA
+ngr_m <-aov(nfdf$Neuron.Ratio~nfdf$Species+nfdf$Species:nfdf$Male_Type) #ANOVA
 summary(ngr_m)
 ngr_sp_comp <- pairs(emmeans(ngr_m, "Species", adjust = "tukey")) #pairwise comparisons with P. parae morphs combined
 summary(ngr_sp_comp)
-ngr_m_comp <-pairs(emmeans(ngr_m, "Morph", adjust = "tukey")) #pairwise comparisons separated morphs of P. parae
+ngr_m_comp <-pairs(emmeans(ngr_m, "Male_Type", adjust = "tukey")) #pairwise comparisons separated morphs of P. parae
 summary(ngr_m_comp)
+
+shapiro.test(residuals(ngr_m)) #normal distribution test
+leveneTest(Neuron.Ratio ~ Morph, data = nfdf)# Run Levene's test using formula interface
 
 ##just females
 ngr_f <-aov(nmdf$Neuron.Ratio~nmdf$Species) #ANOVA
 summary(ngr_f)
 ngr_f_comp <- pairs(emmeans(aov(nmdf$Neuron.Ratio~nmdf$Species), "Species", adjust = "tukey")) #pairwise comparisons
 summary(ngr_f_comp)
+
+shapiro.test(residuals(ngr_f)) #normal distribution test
+leveneTest(Neuron.Ratio ~ Morph, data = nmdf)# Run Levene's test using formula interface
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -113,14 +149,18 @@ bvg_s0 <- test(emtrends(bvg, ~Species, var="ResGL"), adjust="none") #slope to 0
 bvg_s_comp <- emtrends(bvg, pairwise~Species, var="ResGL") #slope significant from each other
 bvg_i_comp <- emmeans(bvg, pairwise~Species, adjust = "tukey") #intercepts different from each other
 
+shapiro.test(residuals(bvg)) #normal distribution test
+leveneTest(ResBL ~ Species, data = nfdf)# Run Levene's test using formula interface
 
 ## by morph (P. pare morphs separated)
-bvg_m <- lm(ResBL ~ ResGL*Morph,data=nfdf)
+bvg_m <- lm(ResBL ~ ResGL*Male_Type,data=nfdf)
 summary(bvg_m)
-bvg_m_s0 <- test(emtrends(bvg_m, ~Morph, var="ResGL"), adjust="none") #slope to 0
-bvg_m_s_comp <- emtrends(bvg_m, pairwise~Morph, var="ResGL", adjust="tukey") #slope significant from each other
-bvg_m_i_comp <- emmeans(bvg_m, pairwise~Morph, adjust = "tukey") #intercepts different from each other
+bvg_m_s0 <- test(emtrends(bvg_m, ~Male_Type, var="ResGL"), adjust="none") #slope to 0
+bvg_m_s_comp <- emtrends(bvg_m, pairwise~Male_Type, var="ResGL", adjust="tukey") #slope significant from each other
+bvg_m_i_comp <- emmeans(bvg_m, pairwise~Male_Type, adjust = "tukey") #intercepts different from each other
 
+shapiro.test(residuals(bvg_m)) #normal distribution test
+leveneTest(ResBL ~ Male_Type, data = nfdf)# Run Levene's test using formula interface
 
 #-------
 
@@ -132,20 +172,25 @@ ngrvg_s0 <-test(emtrends(ngrvg, ~Species, var="ResGL")) #slope to 0
 ngrvg_s_comp <-emtrends(ngrvg, pairwise~Species, var="ResGL") #slope significant from each other
 ngrvg_i_comp <-emmeans(ngrvg, pairwise~Species, adjust = "tukey") #intercepts different from each other
 
-#morph (P. pare morphs separated)
-ngrvg_m<- lm(Neuron.Ratio ~ ResGL*Morph,data=nfdf)
-summary(ngrvg_m)
-ngrvg_m_s0 <-test(emtrends(ngrvg_m, ~Morph, var="ResGL")) #slope to 0
-ngrvg_m_s_comp <-emtrends(ngrvg_m, pairwise~Morph, var="ResGL") #slope significant from each other
-ngrvg_m_i_comp <-emmeans(ngrvg_m, pairwise~Morph, adjust = "tukey") #intercepts different from each other
+shapiro.test(residuals(ngrvg)) #normal distribution test
+leveneTest(Neuron.Ratio ~ Species, data = nfdf)# Run Levene's test using formula interface
 
+#morph (P. pare morphs separated)
+ngrvg_m<- lm(Neuron.Ratio ~ ResGL*Male_Type,data=nfdf)
+summary(ngrvg_m)
+ngrvg_m_s0 <-test(emtrends(ngrvg_m, ~Male_Type, var="ResGL")) #slope to 0
+ngrvg_m_s_comp <-emtrends(ngrvg_m, pairwise~Male_Type, var="ResGL") #slope significant from each other
+ngrvg_m_i_comp <-emmeans(ngrvg_m, pairwise~Male_Type, adjust = "tukey") #intercepts different from each other
+
+shapiro.test(residuals(ngrvg_m)) #normal distribution test
+leveneTest(Neuron.Ratio ~ Male_Type, data = nfdf)# Run Levene's test using formula interface
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 #Create supplementary tables
 #functions
 #create a table of Effects, degrees of freedom, Sum square, Mean square, F value, and P value pased on anova object input and title
-create_anova_table <- function(aov_df, title) {
+create_anova_table <- function(aov_df, title, res_row) {
   # Summarize the ANOVA output
   df <- summary(aov_df)[[1]]
 
@@ -155,10 +200,21 @@ create_anova_table <- function(aov_df, title) {
 
   # Rename the columns
   colnames(df) <- c("Effect", "df", "Sum Sq", "Mean Sq", "F value", "Pr (>F)")
+  # Compute total SS error
+  ss_error <- df$`Sum Sq`[res_row] #res row is the last row of your table in summary
 
-  # Format the dataframe and convert the columns to numeric
+  # Add eta squared (partial η²)
+  df$Partial_Eta2 <- ifelse(
+    df$Effect == df$Effect[res_row], NA,
+    df$`Sum Sq` / (df$`Sum Sq` + ss_error)
+  )
+  # convert the columns to numeric
+  df[, 2:7] <- lapply(df[, 2:7], as.numeric)
+
+
+  #only 3 digits
   df <- format.data.frame(df, digits = 3)
-  df[, 2:6] <- lapply(df[, 2:6], as.numeric)
+
 
   # Create the gt table
   df %>%
@@ -167,7 +223,7 @@ create_anova_table <- function(aov_df, title) {
     tab_style(
       style = cell_text(weight = "bold"),
       locations = cells_body(
-        columns = vars(`Pr (>F)`),
+        columns = c(`Pr (>F)`),
         rows = `Pr (>F)` < 0.05
       )
     )
@@ -201,18 +257,27 @@ create_comp_table <- function(comp, title) {
     tab_style(
       style = cell_text(weight = "bold"),
       locations = cells_body(
-        columns = vars(`P value`),
+        columns = c(`P value`),
         rows = `P value` < 0.05
       )
     )
 }
 #create a table inclduing a linear model and its comparisons of slope to 0, pairwise comparisons of slope, and pairwise comparisons of intercept
 create_regression_table <- function(lm_model, emtrends_s0, emtrends_comp, emmeans_comp, title) {
+  #create model sig table
+  anova_df <- as.data.frame(anova(lm_model))
+  anova_df$Effect <- rownames(anova_df)
+  rownames(anova_df) <- NULL
+  # Keep only standard ANOVA columns (adjust names to match your model output)
+  anova_df <- anova_df[, c("Effect", "Df", "Sum Sq", "Mean Sq", "F value", "Pr(>F)")]
+  colnames(anova_df) <- c("Effect", "Df", "Sum Sq", "Mean Sq", "F value", "P value")
+  # Format
+  anova_df <- format.data.frame(anova_df, digits = 3)
+
+  #linear model coefs
   lm_summary <- summary(lm_model)$coefficients
   lm_df <- data.frame(Effect = rownames(lm_summary), lm_summary)
   rownames(lm_df) <- NULL
-
-  # Rename the columns for clarity
   colnames(lm_df) <- c("Effect", "Estimate", "Std. Error", "t value", "P value")
   # Format the lm_df with 3 digits
   lm_df <- format.data.frame(lm_df, digits = 3)
@@ -232,26 +297,28 @@ create_regression_table <- function(lm_model, emtrends_s0, emtrends_comp, emmean
   emtrends_comp_df <- format.data.frame(emtrends_comp_df, digits = 3)
 
   # Get the emmeans (Intercepts Pairwise Comparisons)
- emmeans_comp_df <- as.data.frame(summary(emmeans_comp)$contrast)
+  emmeans_comp_df <- as.data.frame(summary(emmeans_comp)$contrast)
   emmeans_comp_df <- subset(emmeans_comp_df, select =-df)
   colnames(emmeans_comp_df) <- c("Effect", "Estimate", "Std. Error", "t value", "P value")
   emmeans_comp_df[, 2:5] <- lapply(emmeans_comp_df[, 2:5], as.numeric)
   emmeans_comp_df <- format.data.frame(emmeans_comp_df, digits = 3)
 
-  all_dfs <- list(lm_df, emtrends_s0_df, emtrends_comp_df, emmeans_comp_df)
+  all_dfs <- list(anova_df, lm_df, emtrends_s0_df, emtrends_comp_df, emmeans_comp_df)
   results_df <- do.call(rbind, all_dfs)
   # Combine all results into a single data frame for display
+  title_anova <- data.frame(Effect = "ANOVA Table", Df = NA, `Sum Sq` = NA, `Mean Sq` = NA, `F value` = NA, `P value` = NA)
+  colnames(title_anova) <- c("Effect", "Df", "Sum Sq","Mean Sq","F value","P value")
   title_reg <- data.frame(Effect = "Linear Model", Estimate = NA, `Std. Error` = NA, `t value` = NA, `P value` = NA)
   colnames(title_reg) <- c("Effect", "Estimate", "Std. Error", "t value", "P value")
   title_slope <- data.frame(Effect = "Slope to 0", Estimate = NA, `Std. Error` = NA, `t value` = NA, `P value` = NA)
-    colnames(title_slope) <- c("Effect", "Estimate", "Std. Error", "t value", "P value")
+  colnames(title_slope) <- c("Effect", "Estimate", "Std. Error", "t value", "P value")
   title_slope_comp <- data.frame(Effect = "Pairwise Slope Comparisons", Estimate = NA, `Std. Error` = NA, `t value` = NA, `P value` = NA)
   colnames(title_slope_comp) <- c("Effect", "Estimate", "Std. Error", "t value", "P value")
-title_inter_comp <- data.frame(Effect = "Pairwise Intercept Comparisons", Estimate = NA, `Std. Error` = NA, `t value` = NA, `P value` = NA)
+  title_inter_comp <- data.frame(Effect = "Pairwise Intercept Comparisons", Estimate = NA, `Std. Error` = NA, `t value` = NA, `P value` = NA)
   colnames(title_inter_comp) <- c("Effect", "Estimate", "Std. Error", "t value", "P value")
 
 
-  results_df <- rbind(title_reg, lm_df, title_slope, emtrends_s0_df , title_slope_comp, emtrends_comp_df, title_inter_comp, emmeans_comp_df)
+  results_df <- rbind(title_anova, anova_df, title_reg, lm_df, title_slope, emtrends_s0_df , title_slope_comp, emtrends_comp_df, title_inter_comp, emmeans_comp_df)
 
   # Format the results table using `gt`
   results_df %>%
@@ -260,61 +327,89 @@ title_inter_comp <- data.frame(Effect = "Pairwise Intercept Comparisons", Estima
     tab_style(
       style = cell_text(weight = "bold"),
       locations = cells_body(
-        columns = vars(`P value`),
+        columns = c(`P value`),
         rows = `P value` < 0.05
       )
-    ) %>%
-    tab_spanner(
-      label = "Model Results",
-      columns = c("Effect", "Estimate", "Std. Error", "t value", "P value")
-    )
+    ) ##%>%
+  # tab_spanner(
+  #   label = "Model Results",
+  #   columns = c("Effect", "Estimate", "Std. Error", "t value", "P value")
+  # )
 }
+
 
 #-------
 
+
 #raw gonads
-create_anova_table(raw_g, "Raw Gonads Across Male Morph and Species ANOVA")
+create_anova_table(raw_g, "Raw Gonads Across Male Morph and Species ANOVA", 3)
 create_comp_table(raw_g_comp, "Male Raw Gonad Pairwise Comparisons")
 
-#residual gonad weight (males only)
-create_anova_table(res_g, "Residual Gonads Across Male Morph and Species ANOVA")
-create_comp_table(res_g_comp, "Male Residual Gonad Pairwise Comparisons")
+#residual gonad weight (males only) SL
+create_anova_table(res_g, "Residual Gonads (SL) Across Male Morph and Species ANOVA", 3)
+create_comp_table(res_g_comp, "Male Residual Gonad (SL) Pairwise Comparisons")
+
+#residual gonad weight (males only) BW
+create_anova_table(res_gw, "Residual Gonads (BW) Across Male Morph and Species ANOVA", 3)
+create_comp_table(res_gw_comp, "Male Residual Gonad (BW) Pairwise Comparisons")
 
 #raw brain weight
-create_anova_table(raw_br_all, "Raw Brains Across Sex and Species ANOVA")
+create_anova_table(raw_br_all, "Raw Brains Across Sex and Species ANOVA", 5)
 ##just males
-create_anova_table(raw_br_m, "Raw Brains Across Male Morph and Species ANOVA")
+create_anova_table(raw_br_m, "Raw Brains Across Male Morph and Species ANOVA",3)
 create_comp_table(raw_br_m_comp, "Male Raw Brain Pairwise Comparisons")
 ##just females
-create_anova_table(raw_br_f, "raw brain female")
-create_comp_table(raw_br_f_comp, "raw brain female comp")
+create_anova_table(raw_br_f, "Raw Brains Across Female Species ANOVA",2)
+create_comp_table(raw_br_f_comp, "Female Raw Brain Pairwise Comparisons")
 
-#residual brain weight
-create_anova_table(res_br_all, "Residual Brains Across Sex and Species ANOVA")
+#residual brain weight SL
+create_anova_table(res_br_all, "Residual Brains (SL) Across Sex and Species ANOVA",5)
 ##just males
-create_anova_table(res_br_m, "Residual Brains Across Male Morph and Species ANOVA")
-create_comp_table(res_br_m_comp, "Male Residual Brain Pairwise Comparisons")
+create_anova_table(res_br_m, "Residual Brains (SL) Across Male Morph and Species ANOVA",3)
+create_comp_table(res_br_m_comp, "Male Residual Brain (SL) Pairwise Comparisons")
 ##just females
-create_anova_table(res_br_f, "res brain female")
-create_comp_table(res_br_f_comp, "Female Residual Brain Pairwise Comparisons")
+create_anova_table(res_br_f, "Residual Brains (SL) Across Female Species ANOVA",2)
+create_comp_table(res_br_f_comp, "Female Residual Brain (SL) Pairwise Comparisons")
 
+#residual brain weight BW
+create_anova_table(res_brw_all, "Residual Brains (BW) Across Sex and Species ANOVA", 5)
+##just males
+create_anova_table(res_brw_m, "Residual Brains (BW) Across Male Morph and Species ANOVA", 3)
+create_comp_table(res_brw_m_comp, "Male Residual Brain (BW) Pairwise Comparisons")
+
+summary(res_brw_m)
+
+#just parae males
+create_anova_table(res_brw_parm, "Residual Brains (BW) Across Male Morph and Species ANOVA", 3)
+create_comp_table(res_brw_parm_comp, "Male Residual Brain (BW) Pairwise Comparisons")
+
+##just females
+create_anova_table(res_brw_f, "Residual Brains (BW) Across Female Species ANOVA",2)
+create_comp_table(res_brw_f_comp, "Female Residual Brain (BW) Pairwise Comparisons")
 
 #Neuron/glia ratio
-create_anova_table(ngr_all, "Neuron/Glia Ratio Across Sex and Species ANOVA")
+create_anova_table(ngr_all, "Neuron/Glia Ratio Across Sex and Species ANOVA", 5)
 ##just males
-create_anova_table(ngr_m, "Neuron/Glia Ratio Across Male Morph and Species ANOVA")
+create_anova_table(ngr_m, "Neuron/Glia Ratio Across Male Morph and Species ANOVA", 3)
 create_comp_table(ngr_m_comp, "Male Neuron/Glia Ratio Pairwise Comparisons")
 ##just females
-create_anova_table(ngr_f, "Neuron/Glia Ratio Across Female Species ANOVA")
+create_anova_table(ngr_f, "Neuron/Glia Ratio Across Female Species ANOVA", 2)
 create_comp_table(ngr_f_comp, "Female Neuron/Glia Ratio Pairwise Comparisons")
 
 #-------
 
-#male brain x gonad
+#male brain x gonad (SL)
 ## species (P. pare morphs combined)
-create_regression_table(bvg, bvg_s0, bvg_s_comp, bvg_i_comp, "Male Brain Weight by Gonad Weight Species")
+create_regression_table(bvg, bvg_s0, bvg_s_comp, bvg_i_comp, "Male Brain Weight by Gonad Weight Species (SL)")
 ## morphs (P. pare morphs separated)
-create_regression_table(bvg_m, bvg_m_s0, bvg_m_s_comp, bvg_m_i_comp, "Male Brain Weight by Gonad Weight Morph")
+create_regression_table(bvg_m, bvg_m_s0, bvg_m_s_comp, bvg_m_i_comp, "Male Brain Weight by Gonad Weight Morph (SL)")
+
+#male brain x gonad (BW)
+## species (P. pare morphs combined)
+create_regression_table(bvgw, bvgw_s0, bvgw_s_comp, bvgw_i_comp, "Male Brain Weight by Gonad Weight Species (BW)")
+## morphs (P. pare morphs separated)
+create_regression_table(bvgw_m, bvgw_m_s0, bvgw_m_s_comp, bvgw_m_i_comp, "Male Brain Weight by Gonad Weight Morph (BW)")
+
 
 #male neuron/glia ratio x gonad
 ## species (P. pare morphs combined)
